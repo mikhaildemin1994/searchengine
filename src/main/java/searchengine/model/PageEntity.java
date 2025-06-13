@@ -11,7 +11,7 @@ import javax.persistence.*;
 @RequiredArgsConstructor
 @Getter
 @Setter
-public class Page {
+public class PageEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -19,7 +19,7 @@ public class Page {
 
     @ManyToOne
     @JoinColumn(name = "site_id")
-    private Site siteId; // ID сайта (табл. site)
+    private SiteEntity siteId; // ID сайта (табл. site)
 
     @Column(name = "path", columnDefinition = "VARCHAR(255)", nullable = false)
     private String path; // Адрес страницы от корня сайта
@@ -29,4 +29,5 @@ public class Page {
 
     @Column(name = "content", columnDefinition = "MEDIUMTEXT ", nullable = false)
     private String content; // Контент страницы (HTML-код)
+
 }

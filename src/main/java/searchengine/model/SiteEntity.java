@@ -13,7 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Getter
 @Setter
-public class Site {
+public class SiteEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -36,5 +36,6 @@ public class Site {
     private String name; // Имя сайта
 
     @OneToMany(mappedBy = "siteId", cascade = CascadeType.ALL)
-    private List<Page> pages;
+    private List<PageEntity> pages;
+
 }
