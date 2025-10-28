@@ -1,7 +1,6 @@
 package searchengine.controllers;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,8 +8,6 @@ import org.springframework.web.bind.annotation.RestController;
 import searchengine.dto.statistics.StatisticsResponse;
 import searchengine.services.SiteIndexingService;
 import searchengine.services.StatisticsService;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @RestController
 @RequestMapping("/api")
@@ -33,9 +30,9 @@ public class ApiController {
     @GetMapping("/startIndexing")
     public ResponseEntity<?> startIndexing() {
         indexingService.compute();
-        indexingService.create();
-        return indexingService.writingToDB().get() ?
-                ResponseEntity.ok("result: true") :
-                ResponseEntity.ok("result: false");
+//        return indexingService.writingToDB().get() ?
+//                ResponseEntity.ok("result: true") :
+//                ResponseEntity.ok("result: false");
+        return ResponseEntity.ok(indexingService.writingToDB());
     }
 }
