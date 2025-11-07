@@ -5,6 +5,7 @@ import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
+import searchengine.config.Site;
 import searchengine.config.SitesList;
 import searchengine.dto.statistics.PageDTO;
 import searchengine.dto.statistics.SiteDTO;
@@ -27,68 +28,70 @@ import java.util.stream.Collectors;
 public class SiteIndexingService extends RecursiveAction {
     private final SiteRepository siteRepository;
     private final PageRepository pageRepository;
+    private final SitesList sites;
 
-    private static int statusCode;
-    private static String content;
-    private static PageDTO pageDTO = new PageDTO();
-    private static SiteDTO siteDTO = new SiteDTO();
-    private static PageEntity pageEntity = new PageEntity();
-    private static SiteEntity siteEntity = new SiteEntity();
-    private static List<String> linksList = new ArrayList<>();
+    private final PageDTO pageDTO = new PageDTO();
+    private final SiteDTO siteDTO = new SiteDTO();
+    protected PageEntity pageEntity;
+    protected SiteEntity siteEntity;
+    private static final List<String> linksList = new ArrayList<>();
 
     @Override
     public void compute() {
         List<SiteIndexingService> taskList = new ArrayList<>();
-        Document doc;
-        String url = "https://sendel.ru/";
+        List<Site> sitesList = sites.getSites();
 
-        try {
-            Thread.sleep(5000);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        for (Site site : sitesList) {
+            String url = site.getUrl();
 
-        try {
-            doc = Jsoup.connect(url)
-                    .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
-                    .referrer("http://www.google.com")
-                    .get();
-            Connection.Response response = doc.connection().response();
-            content = doc.outerHtml();
-            statusCode = response.statusCode();
-            Set<String> lists = doc.select("a").
-                    stream().map(d -> d.attr("href")).collect(Collectors.toSet());
+            try {
+                Thread.sleep(5000);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
-            for(String list : lists) {
-                if(!list.contains("https") && !list.contains("#")
-                && !list.contains("@") && !linksList.contains(list)) {
-                    pageDTO.setCode(statusCode);
-                    pageDTO.setPath(list);
-                    pageDTO.setContent(content);
+            try {
+                Document doc = Jsoup.connect(url)
+                        .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
+                        .referrer("http://www.google.com")
+                        .get();
+                Connection.Response response = doc.connection().response();
+                String content = doc.outerHtml();
+                int statusCode = response.statusCode();
+                Set<String> lists = doc.select("a").
+                        stream().map(d -> d.attr("href")).collect(Collectors.toSet());
 
-                    siteDTO.setStatus(Status.INDEXED);
-                    siteDTO.setStatusTime(LocalDateTime.now());
-                    siteDTO.setUrl(url);
-                    siteDTO.setName(url);
+                for (String list : lists) {
+                    if (!list.contains("https") && !list.contains("#")
+                            && !list.contains("@") && !linksList.contains(list)) {
+                        siteDTO.setStatus(Status.INDEXED);
+                        siteDTO.setStatusTime(LocalDateTime.now());
+                        siteDTO.setUrl(url);
+                        siteDTO.setName(site.getName());
 
-                    pageEntity = mapToEntity(pageDTO);
-                    siteEntity = mapToEntity(siteDTO);
-                    pageRepository.save(pageEntity);
-                    siteRepository.save(siteEntity);
+                        pageDTO.setSiteId(siteEntity);
+                        pageDTO.setCode(statusCode);
+                        pageDTO.setPath(list);
+                        pageDTO.setContent(content);
 
-                    linksList.add(list);
+                        pageEntity = mapToEntity(pageDTO);
+                        siteEntity = mapToEntity(siteDTO);
+                        pageRepository.save(pageEntity);
+                        siteRepository.save(siteEntity);
 
-                    SiteIndexingService task = new SiteIndexingService(siteRepository, pageRepository);
-                    taskList.add(task);
+                        linksList.add(list);
+
+                        SiteIndexingService task = new SiteIndexingService(siteRepository, pageRepository, sites);
+                        taskList.add(task);
+                    }
                 }
+                for (SiteIndexingService task : taskList) {
+                    task.fork();
+                    task.join();
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
-            for(SiteIndexingService task : taskList) {
-                task.fork();
-                task.join();
-            }
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
         }
     }
 
