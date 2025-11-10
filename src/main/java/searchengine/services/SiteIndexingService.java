@@ -41,9 +41,12 @@ public class SiteIndexingService extends RecursiveAction {
         List<SiteIndexingService> taskList = new ArrayList<>();
         List<Site> sitesList = sites.getSites();
 
-        for (Site site : sitesList) {
-            String url = site.getUrl();
+//        for (Site site : sitesList) {
+//            String url = site.getUrl();
 
+        for(int i = 0; i < sitesList.size(); i++) {
+            Site site = sitesList.get(i);
+            String url = site.getUrl();
             try {
                 Thread.sleep(5000);
             } catch (Exception e) {
@@ -64,20 +67,20 @@ public class SiteIndexingService extends RecursiveAction {
                 for (String list : lists) {
                     if (!list.contains("https") && !list.contains("#")
                             && !list.contains("@") && !linksList.contains(list)) {
+                        siteDTO.setId(i + 1);
                         siteDTO.setStatus(Status.INDEXED);
                         siteDTO.setStatusTime(LocalDateTime.now());
                         siteDTO.setUrl(url);
                         siteDTO.setName(site.getName());
+                        siteEntity = mapToEntity(siteDTO);
+                        siteRepository.save(siteEntity);
 
                         pageDTO.setSiteId(siteEntity);
                         pageDTO.setCode(statusCode);
                         pageDTO.setPath(list);
                         pageDTO.setContent(content);
-
                         pageEntity = mapToEntity(pageDTO);
-                        siteEntity = mapToEntity(siteDTO);
                         pageRepository.save(pageEntity);
-                        siteRepository.save(siteEntity);
 
                         linksList.add(list);
 
