@@ -15,7 +15,6 @@ import java.util.List;
 @Setter
 public class SiteEntity {
     @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
 
@@ -36,6 +35,6 @@ public class SiteEntity {
     private String name; // Имя сайта
 
     @OneToMany(mappedBy = "siteId", cascade = CascadeType.ALL)
-    private List<PageEntity> pages;
+    private List<PageEntity> pages; // Список страниц сайта
 
 }

@@ -41,9 +41,6 @@ public class SiteIndexingService extends RecursiveAction {
         List<SiteIndexingService> taskList = new ArrayList<>();
         List<Site> sitesList = sites.getSites();
 
-//        for (Site site : sitesList) {
-//            String url = site.getUrl();
-
         for(int i = 0; i < sitesList.size(); i++) {
             Site site = sitesList.get(i);
             String url = site.getUrl();

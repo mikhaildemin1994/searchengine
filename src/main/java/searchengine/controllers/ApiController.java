@@ -17,11 +17,6 @@ public class ApiController {
     private final StatisticsService statisticsService;
     private final SiteIndexingService indexingService;
 
-//    public ApiController(StatisticsService statisticsService) {
-//        this.statisticsService = statisticsService;
-//    }
-
-
     @GetMapping("/statistics")
     public ResponseEntity<StatisticsResponse> statistics() {
         return ResponseEntity.ok(statisticsService.getStatistics());
@@ -30,9 +25,6 @@ public class ApiController {
     @GetMapping("/startIndexing")
     public ResponseEntity<?> startIndexing() {
         indexingService.compute();
-//        return indexingService.writingToDB().get() ?
-//                ResponseEntity.ok("result: true") :
-//                ResponseEntity.ok("result: false");
         return ResponseEntity.ok(indexingService.writingToDB());
     }
 }

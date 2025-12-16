@@ -19,7 +19,7 @@ public class PageEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "site_id")
-    private SiteEntity siteId; // ID сайта (табл. site)
+    private SiteEntity siteId; // Идентификатор сайта
 
     @Column(name = "path", columnDefinition = "VARCHAR(255)", nullable = false)
     private String path; // Адрес страницы от корня сайта
